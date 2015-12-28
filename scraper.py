@@ -104,6 +104,37 @@ class CompanyListing(object):
             for row in self.rows
         )
 
+address_rx = re.compile(r'''
+    Head\ office(?P<address>.+)
+    (?:Tel.(?P<tel>.*))
+    (?:Fax.(?P<fax>.*))
+    \[Click\ HERE
+    ''',
+    re.VERBOSE
+)
+
+class CompanyPage(object):
+    def __init__(self, content):
+        self._content = pq(content)
+
+    def _process(self):
+        self._data = {
+            'name': self._content('.menub .ttr').eq(0).text()
+        }
+
+        for cell in self._content('.menub td'):
+            text = strip_whitespace(cell.text_content())
+            m = re.match(address_rx, text)
+            if m:
+                self._data['address'] = strip_whitespace(m.group('address'))
+                self._data['tel'] = strip_whitespace(m.group('tel')).strip('-')
+                self._data['fax'] = strip_whitespace(m.group('fax')).strip('-')
+
+    @property
+    def data(self):
+        if not hasattr(self, '_data'):
+            self._process()
+        return self._data
 
 root_url = 'http://www.sec.or.th/EN/MarketProfessionals/Intermediaries/Pages/ListofBusinessOperators.aspx'
 
@@ -113,12 +144,13 @@ if __name__ == '__main__':
         url = link['url']
         url = find_js_redirect(pq(url=url)) or url
 
-        for co_link in filter(None, CompanyListing(
+        for company_link in filter(None, CompanyListing(
             pq(url=url),
             title=link['title'],
             parents=link['parents'],
         ).links):
-            print co_link
+            page = CompanyPage(pq(url=company_link))
+            page.data
 
 
 #html = open('data/ListofBusinessOperators.aspx').read()

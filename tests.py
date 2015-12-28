@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from scraper import MainIndexCell, CompanyListing
+from scraper import MainIndexCell, CompanyListing, CompanyPage
 
 
 def test_main_index_cell_links():
@@ -62,3 +62,14 @@ def test_company_listing_get_link():
         result ==
         'http://capital.sec.or.th/webapp/en/infocenter/intermed/comprofile/resultc_29032549.php?cno=0000000505'
     )
+
+def test_company_page_data():
+    html = open('data/company.html').read()
+    data = CompanyPage(html).data
+    assert data['name'] == 'AEC SECURITIES PUBLIC COMPANY LIMITED'
+    assert data['address'] == (
+        '63 , ATHENEE TOWER, 15TH, 17TH FL., WIRELESS RD.,'
+        'LUMPHINI, PATHUM WAN, Bangkok 10330'
+    )
+    assert data['tel'] == ''
+    assert data['fax'] == ''
