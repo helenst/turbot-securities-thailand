@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from scraper import MainIndex, CategoryIndex
+from scraper import MainIndexCell, CompanyListing
 
 
-def test_extract_links():
+def test_main_index_cell_links():
     input_cell = u'''
     <td class="ms-rteTableOddCol-sec" valign="top">
 <div><span>Brokerage</span></div>
@@ -17,7 +17,7 @@ def test_extract_links():
 </td>
     '''
 
-    links = MainIndex(input_cell).extract_links()
+    links = MainIndexCell(input_cell).links
 
     assert list(links) == [
         {
@@ -47,7 +47,7 @@ def test_extract_links():
         },
     ]
 
-def test_process_row():
+def test_company_listing_get_link():
     row = '''
     <tr class="rgRow" id="ctl00_ContentPlaceHolder1_RadGrid1_ctl00_ctl04_RadGrid11_ctl00__0">
         <td align="center" style="width:5%;">
@@ -55,14 +55,10 @@ def test_process_row():
                                         </td><td style="width:25%;"><a href="http://capital.sec.or.th/webapp/en/infocenter/intermed/comprofile/resultc_29032549.php?cno=0000000505">AEC SECURITIES PUBLIC CO.,LTD.</a></td><td style="width:70%;">63 , ATHENEE TOWER, 15TH, 17TH FL., WIRELESS RD., LUMPHINI, PATHUM WAN, Bangkok 10330 Tel.- Fax.-</td>
     </tr>
     '''
-    index = CategoryIndex('<body />', 'page title', ['level 1', 'level 2'])
-    result = index.process_row(row, )
+    index = CompanyListing('<body />', 'page title', ['level 1', 'level 2'])
+    result = index.get_link(row)
 
-    assert result == {
-        'name': 'AEC SECURITIES PUBLIC CO.,LTD.',
-        'url': 'http://capital.sec.or.th/webapp/en/infocenter/intermed/comprofile/resultc_29032549.php?cno=0000000505',
-        'address': '63 , ATHENEE TOWER, 15TH, 17TH FL., WIRELESS RD., LUMPHINI, PATHUM WAN, Bangkok 10330',
-        'tel': '',
-        'fax': '',
-        'type': 'level 1: level 2: page title',
-    }
+    assert (
+        result ==
+        'http://capital.sec.or.th/webapp/en/infocenter/intermed/comprofile/resultc_29032549.php?cno=0000000505'
+    )

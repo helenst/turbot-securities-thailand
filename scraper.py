@@ -17,12 +17,33 @@ def normalize_whitespace(text):
 def strip_whitespace(text):
     return text.strip(string.whitespace + u'\u200b\u00a0')
 
+def find_js_redirect(doc):
+    scripts = doc('script')
+    for script in scripts:
+        if script.text:
+            m = re.match(r"document.location\s*=\s*'(?P<url>http://.+)'", script.text)
+            if m:
+                return m.group('url')
+
 
 class MainIndex(object):
     def __init__(self, content):
         self._content = pq(content)
 
-    def extract_links(self):
+    @property
+    def links(self):
+        cells = self._content('.ms-rteTable-sec tr td:last')
+        for td in cells:
+            for link in MainIndexCell(td).extract_links():
+                yield link
+
+
+class MainIndexCell(object):
+    def __init__(self, content):
+        self._content = pq(content)
+
+    @property
+    def links(self):
         """Extract links from one cell on the index"""
         divs = self._content.items('div')
         levels = []
@@ -54,80 +75,50 @@ class MainIndex(object):
                 levels.append(content)
 
 
-class CategoryIndex(object):
+class CompanyListing(object):
     def __init__(self, content, title, parents):
         self._content = pq(content)
         self._title = title
         self._parents = parents
 
-    @staticmethod
-    def find_js_redirect(doc):
-        scripts = doc('script')
-        for script in scripts:
-            if script.text:
-                m = re.match(r"document.location\s*=\s*'(?P<url>http://.+)'", script.text)
-                if m:
-                    return m.group('url')
+    @property
+    def rows(self):
+        return self._content(
+            '.rgMasterTable .rgMasterTable tr,'
+            '.menub tr'
+        )
 
-    def process_row(self, row):
+    def get_link(self, row):
         cells = list(pq(row).items('td'))
         if len(cells) != 3:
             return
 
-        _, name_cell, address_cell = cells
-
-        address = address_cell.text()
-        tel = ''
-        fax = ''
-        url = ''
-
-        a = name_cell.find('a')
+        a = cells[1].find('a')
         if a:
-            url = a[0].attrib['href']
+            return a[0].attrib['href']
 
-        m = re.match('(?P<address>.*)Tel.(?P<tel>.*)Fax.(?P<fax>.*)', address)
-        if m:
-            address = m.group('address').strip()
-            tel = m.group('tel').strip(string.whitespace + '-')
-            fax = m.group('fax').strip(string.whitespace + '-')
-
-        return {
-            'name': name_cell.text(),
-            'address': address,
-            'url': url,
-            'tel': tel,
-            'fax': fax,
-            'type': ': '.join(self._parents + [self._title]),
-        }
-
-
-    def get_rows(self):
-        return self._content(
-            '.rgMasterTable .rgMasterTable tr,'
-            '.menub tr'
+    @property
+    def links(self):
+        return (
+            self.get_link(row)
+            for row in self.rows
         )
 
 
 root_url = 'http://www.sec.or.th/EN/MarketProfessionals/Intermediaries/Pages/ListofBusinessOperators.aspx'
 
 if __name__ == '__main__':
-    #html = open('data/ListofBusinessOperators.aspx').read()
-    doc = pq(url=root_url)
+    for link in MainIndex(pq(url=root_url)).links:
+        # Redirect if necessary
+        url = link['url']
+        url = find_js_redirect(pq(url=url)) or url
 
-    info_cells = doc('.ms-rteTable-sec tr td:last')
-    for cell in info_cells:
-        index = MainIndex(cell)
-        for page in index.extract_links():
-            url = page['url']
-            # Redirect if necessary
-            redirect_url = CategoryIndex.find_js_redirect(pq(url=url))
-            if redirect_url:
-                url = redirect_url
+        for co_link in filter(None, CompanyListing(
+            pq(url=url),
+            title=link['title'],
+            parents=link['parents'],
+        ).links):
+            print co_link
 
-            category = CategoryIndex(
-                pq(url=url),
-                title=page['title'],
-                parents=page['parents'],
-            )
-            for row in category.get_rows():
-                print category.process_row(row)
+
+#html = open('data/ListofBusinessOperators.aspx').read()
