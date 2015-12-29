@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import json
-import datetime
 import string
 import re
 
 import requests
 import turbotlib
+from dateutil.parser import parse
 from pyquery import PyQuery as pq
 
 turbotlib.log("Starting run...")
@@ -108,7 +108,14 @@ address_rx = re.compile(r'''
     Head\ office(?P<address>.+)
     (?:Tel.(?P<tel>.*))
     (?:Fax.(?P<fax>.*))
-    \[Click\ HERE
+    \[Click\ HERE                   # next bit of text... ignore
+    ''',
+    re.VERBOSE
+)
+
+date_of_incorporation_rx = re.compile(r'''
+    Date\ of\ Incorporation\ :\ (?P<date>.+)
+    Registered\ &\ Paid-Up\ Capital
     ''',
     re.VERBOSE
 )
@@ -117,18 +124,33 @@ class CompanyPage(object):
     def __init__(self, content):
         self._content = pq(content)
 
+    def _process_address(self, match):
+        self._data.update(
+            address=strip_whitespace(match.group('address')),
+            tel=strip_whitespace(match.group('tel')).strip('-'),
+            fax=strip_whitespace(match.group('fax')).strip('-'),
+        )
+
+    def _process_incorporation_date(self, match):
+        incorp_date = parse(strip_whitespace(match.group('date')))
+        self._data.update(
+            date_incorporated=incorp_date
+        )
+
     def _process(self):
         self._data = {
             'name': self._content('.menub .ttr').eq(0).text()
         }
 
-        for cell in self._content('.menub td'):
+        for cell in self._content('.menub tr'):
             text = strip_whitespace(cell.text_content())
-            m = re.match(address_rx, text)
-            if m:
-                self._data['address'] = strip_whitespace(m.group('address'))
-                self._data['tel'] = strip_whitespace(m.group('tel')).strip('-')
-                self._data['fax'] = strip_whitespace(m.group('fax')).strip('-')
+            match = re.match(address_rx, text)
+            if match:
+                self._process_address(match)
+
+            match = re.match(date_of_incorporation_rx, text)
+            if match:
+                self._process_incorporation_date(match)
 
     @property
     def data(self):
