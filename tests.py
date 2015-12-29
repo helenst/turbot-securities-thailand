@@ -69,10 +69,10 @@ def test_company_page_data():
     data = CompanyPage(html).data
     assert data['name'] == 'AEC SECURITIES PUBLIC COMPANY LIMITED'
     assert data['address'] == (
-        '63 , ATHENEE TOWER, 15TH, 17TH FL., WIRELESS RD.,'
+        '63 , ATHENEE TOWER, 15TH, 17TH FL., WIRELESS RD., '
         'LUMPHINI, PATHUM WAN, Bangkok 10330'
     )
     assert data['tel'] == ''
     assert data['fax'] == ''
-    #assert data['website'] == 'http://www.aecs.com/'
+    assert data['website'] == 'http://www.aecs.com'
     assert data['date_incorporated'].date() == date(1993, 12, 15)

@@ -109,48 +109,64 @@ address_rx = re.compile(r'''
     (?:Tel.(?P<tel>.*))
     (?:Fax.(?P<fax>.*))
     \[Click\ HERE                   # next bit of text... ignore
-    ''',
-    re.VERBOSE
+    ''', re.VERBOSE
 )
 
 date_of_incorporation_rx = re.compile(r'''
     Date\ of\ Incorporation\ :\ (?P<date>.+)
     Registered\ &\ Paid-Up\ Capital
-    ''',
-    re.VERBOSE
+    ''', re.VERBOSE
 )
+
+website_rx = re.compile(r'''
+    \[Click\ HERE\ for\ History\ of\ Name\ Change\]\ 
+    \[Click\ HERE\ for\ Company\ Website\]
+    ''', re.VERBOSE
+)
+
 
 class CompanyPage(object):
     def __init__(self, content):
         self._content = pq(content)
 
-    def _process_address(self, match):
+    def _process_address(self, cell, match):
         self._data.update(
             address=strip_whitespace(match.group('address')),
             tel=strip_whitespace(match.group('tel')).strip('-'),
             fax=strip_whitespace(match.group('fax')).strip('-'),
         )
 
-    def _process_incorporation_date(self, match):
+    def _process_incorporation_date(self, cell, match):
         incorp_date = parse(strip_whitespace(match.group('date')))
         self._data.update(
             date_incorporated=incorp_date
         )
+
+    def _process_website(self, cell, match):
+        a = cell.find('a')
+        if a:
+            self._data.update(
+                website=a[1].attrib['href']
+            )
 
     def _process(self):
         self._data = {
             'name': self._content('.menub .ttr').eq(0).text()
         }
 
-        for cell in self._content('.menub tr'):
-            text = strip_whitespace(cell.text_content())
-            match = re.match(address_rx, text)
+        for cell in self._content.items('.menub tr'):
+            text = strip_whitespace(cell.text())
+            match = address_rx.match(text)
             if match:
-                self._process_address(match)
+                self._process_address(cell, match)
 
-            match = re.match(date_of_incorporation_rx, text)
+            match = date_of_incorporation_rx.match(text)
             if match:
-                self._process_incorporation_date(match)
+                self._process_incorporation_date(cell, match)
+
+            match = website_rx.match(text)
+            if match:
+                self._process_website(cell, match)
 
     @property
     def data(self):
