@@ -15,6 +15,8 @@ def normalize_whitespace(text):
     return " ".join(map(strip_whitespace, text.split()))
 
 def strip_whitespace(text):
+    if not isinstance(text, (str, unicode)):
+        return text
     return text.strip(string.whitespace + u'\u200b\u00a0')
 
 def find_js_redirect(doc):
@@ -113,11 +115,12 @@ class Matcher(object):
         if match:
             return cls.process(cell, match)
 
+
 class AddressMatcher(Matcher):
     regex = re.compile(r'''
         Head\ office(?P<address>.+)
-        (?:Tel.(?P<tel>.*))
-        (?:Fax.(?P<fax>.*))
+        (?:Tel.\s*(?P<tel>[-0-9]*)\s*)
+        (?:Fax.\s*(?P<fax>[-0-9]*)\s*)
         \[Click\ HERE                   # next bit of text... ignore
         ''', re.VERBOSE
     )
@@ -125,9 +128,9 @@ class AddressMatcher(Matcher):
     @staticmethod
     def process(cell, match):
         return dict(
-            address=strip_whitespace(match.group('address')),
-            tel=strip_whitespace(match.group('tel')).strip('-'),
-            fax=strip_whitespace(match.group('fax')).strip('-'),
+            address=match.group('address'),
+            tel=match.group('tel').strip('-'),
+            fax=match.group('fax').strip('-'),
         )
 
 class IncorporationDateMatcher(Matcher):
@@ -165,7 +168,7 @@ class RegisteredCapitalMatcher(Matcher):
     @staticmethod
     def process(cell, match):
         return dict(
-            registered_capital=strip_whitespace(match.group('capital'))
+            registered_capital=match.group('capital')
         )
 
 class PaidUpCapitalMatcher(Matcher):
@@ -174,7 +177,7 @@ class PaidUpCapitalMatcher(Matcher):
     @staticmethod
     def process(cell, match):
         return dict(
-            paid_up_capital=strip_whitespace(match.group('capital'))
+            paid_up_capital=match.group('capital')
         )
 
 
@@ -190,7 +193,6 @@ class CompanyPage(object):
     def __init__(self, content):
         self._content = pq(content)
 
-
     def _process(self):
         self._data = {
             'name': self._content('.menub .ttr').eq(0).text()
@@ -200,7 +202,10 @@ class CompanyPage(object):
             for matcher in MATCHERS:
                 data = matcher.attempt_match(cell)
                 if data:
-                    self._data.update(data)
+                    self._data.update({
+                        k: strip_whitespace(v)
+                        for (k, v) in data.items()
+                    })
                     break
 
     @property
