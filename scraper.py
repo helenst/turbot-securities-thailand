@@ -104,50 +104,92 @@ class CompanyListing(object):
             for row in self.rows
         )
 
-address_rx = re.compile(r'''
-    Head\ office(?P<address>.+)
-    (?:Tel.(?P<tel>.*))
-    (?:Fax.(?P<fax>.*))
-    \[Click\ HERE                   # next bit of text... ignore
-    ''', re.VERBOSE
-)
 
-date_of_incorporation_rx = re.compile(r'''
-    Date\ of\ Incorporation\ :\ (?P<date>.+)
-    Registered\ &\ Paid-Up\ Capital
-    ''', re.VERBOSE
-)
+class Matcher(object):
+    @classmethod
+    def attempt_match(cls, cell):
+        text = strip_whitespace(cell.text())
+        match = cls.regex.match(text)
+        if match:
+            return cls.process(cell, match)
 
-website_rx = re.compile(r'''
-    \[Click\ HERE\ for\ History\ of\ Name\ Change\]\ 
-    \[Click\ HERE\ for\ Company\ Website\]
-    ''', re.VERBOSE
-)
+class AddressMatcher(Matcher):
+    regex = re.compile(r'''
+        Head\ office(?P<address>.+)
+        (?:Tel.(?P<tel>.*))
+        (?:Fax.(?P<fax>.*))
+        \[Click\ HERE                   # next bit of text... ignore
+        ''', re.VERBOSE
+    )
 
-
-class CompanyPage(object):
-    def __init__(self, content):
-        self._content = pq(content)
-
-    def _process_address(self, cell, match):
-        self._data.update(
+    @staticmethod
+    def process(cell, match):
+        return dict(
             address=strip_whitespace(match.group('address')),
             tel=strip_whitespace(match.group('tel')).strip('-'),
             fax=strip_whitespace(match.group('fax')).strip('-'),
         )
 
-    def _process_incorporation_date(self, cell, match):
+class IncorporationDateMatcher(Matcher):
+    regex = re.compile(r'''
+        Date\ of\ Incorporation\ :\ (?P<date>.+)
+        Registered\ &\ Paid-Up\ Capital
+        ''', re.VERBOSE
+    )
+
+    @staticmethod
+    def process(cell, match):
         incorp_date = parse(strip_whitespace(match.group('date')))
-        self._data.update(
+        return dict(
             date_incorporated=incorp_date
         )
 
-    def _process_website(self, cell, match):
+class WebsiteMatcher(Matcher):
+    regex = re.compile(r'''
+        \[Click\ HERE\ for\ History\ of\ Name\ Change\]\ 
+        \[Click\ HERE\ for\ Company\ Website\]
+        ''', re.VERBOSE
+    )
+
+    @staticmethod
+    def process(cell, match):
         a = cell.find('a')
         if a:
-            self._data.update(
+            return dict(
                 website=a[1].attrib['href']
             )
+
+class RegisteredCapitalMatcher(Matcher):
+    regex = re.compile('- Registered (?P<capital>.+ Baht)')
+
+    @staticmethod
+    def process(cell, match):
+        return dict(
+            registered_capital=strip_whitespace(match.group('capital'))
+        )
+
+class PaidUpCapitalMatcher(Matcher):
+    regex = re.compile('- Paid-Up Capital (?P<capital>.+ Baht)')
+
+    @staticmethod
+    def process(cell, match):
+        return dict(
+            paid_up_capital=strip_whitespace(match.group('capital'))
+        )
+
+
+MATCHERS = (
+    AddressMatcher,
+    IncorporationDateMatcher,
+    WebsiteMatcher,
+    RegisteredCapitalMatcher,
+    PaidUpCapitalMatcher,
+)
+
+class CompanyPage(object):
+    def __init__(self, content):
+        self._content = pq(content)
+
 
     def _process(self):
         self._data = {
@@ -155,18 +197,11 @@ class CompanyPage(object):
         }
 
         for cell in self._content.items('.menub tr'):
-            text = strip_whitespace(cell.text())
-            match = address_rx.match(text)
-            if match:
-                self._process_address(cell, match)
-
-            match = date_of_incorporation_rx.match(text)
-            if match:
-                self._process_incorporation_date(cell, match)
-
-            match = website_rx.match(text)
-            if match:
-                self._process_website(cell, match)
+            for matcher in MATCHERS:
+                data = matcher.attempt_match(cell)
+                if data:
+                    self._data.update(data)
+                    break
 
     @property
     def data(self):

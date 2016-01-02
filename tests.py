@@ -76,3 +76,5 @@ def test_company_page_data():
     assert data['fax'] == ''
     assert data['website'] == 'http://www.aecs.com'
     assert data['date_incorporated'].date() == date(1993, 12, 15)
+    assert data['registered_capital'] == '1,331.72 Million Baht'
+    assert data['paid_up_capital'] == '1,009.74 Million Baht'
