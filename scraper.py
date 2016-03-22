@@ -256,6 +256,15 @@ class CompanyPage(object):
                 'training_deadline': parse_date(training.text()),
             })
 
+    def _process_head_of_compliance(self, row):
+        cells = list(row.items('td'))
+        if len(cells) == 2:
+            name, start_date = cells
+            self.data['head_of_compliance'].append({
+                'name': name.text().title(),
+                'start_date': parse_date(start_date.text())
+            })
+
     def _process(self):
         self._data = {
             'name': self._content('.menub .ttr').eq(0).text(),
@@ -266,6 +275,7 @@ class CompanyPage(object):
             'major_shareholders': [],
             'executives': [],
             'fund_managers': [],
+            'head_of_compliance': [],
         }
 
         for row in self._content.items('.menub tr'):
@@ -294,6 +304,9 @@ class CompanyPage(object):
 
             elif self._headings_found == 6:
                 self._process_fund_manager(row)
+
+            elif self._headings_found == 7:
+                self._process_head_of_compliance(row)
 
     @property
     def data(self):

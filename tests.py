@@ -157,3 +157,11 @@ def test_company_page_fund_managers():
         'appointed_date': date(2014, 8, 1),
         'training_deadline': date(2017, 12, 31),
     }]
+
+def test_company_page_head_of_compliance():
+    html = open('data/company.html').read()
+    data = CompanyPage(html).data
+    assert data['head_of_compliance'] == [{
+        'name': 'Mr. Kasidit Nuchtan',
+        'start_date': date(2015, 5, 6),
+    }]
