@@ -122,3 +122,27 @@ def test_company_page_shareholders():
         'name': 'PRAPHOL MILINDACHINLA',
         'percentage': 25.06,
     }]
+
+def test_company_page_executives():
+    html = open('data/company.html').read()
+    data = CompanyPage(html).data
+    assert len(data['executives']) == 10
+
+    for entry in [
+        {
+            'name': 'MRS. AMPORN JIAMMUNJIT',
+            'position': 'Manager',
+            'nationality': 'THAI',
+        },
+        {
+            'name': 'MR. VICHYA KREA-NGAM',
+            'position': 'Director',
+            'nationality': 'THAI',
+        },
+        {
+            'name': 'MR. PAISIT KAENCHAN',
+            'position': 'Independent Director',
+            'nationality': 'THAI',
+        },
+    ]:
+        assert entry in data['executives']

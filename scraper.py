@@ -231,6 +231,16 @@ class CompanyPage(object):
                 'percentage': float(percent.text().strip('%'))
             })
 
+    def _process_executive(self, row):
+        cells = list(row.items('td'))
+        if len(cells) == 4:
+            _, name, position, nationality = cells
+            self.data['executives'].append({
+                'name': name.text(),
+                'position': position.text(),
+                'nationality': nationality.text(),
+            })
+
     def _process(self):
         self._data = {
             'name': self._content('.menub .ttr').eq(0).text(),
@@ -239,6 +249,7 @@ class CompanyPage(object):
                 'derivatives': [],
             },
             'major_shareholders': [],
+            'executives': [],
         }
 
         for row in self._content.items('.menub tr'):
@@ -261,6 +272,9 @@ class CompanyPage(object):
 
             elif self._headings_found == 4:
                 self._process_major_shareholder(row)
+
+            elif self._headings_found == 5:
+                self._process_executive(row)
 
     @property
     def data(self):
