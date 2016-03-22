@@ -27,6 +27,9 @@ def find_js_redirect(doc):
             if m:
                 return m.group('url')
 
+def parse_date(text):
+    return parse(text, dayfirst=True).date()
+
 
 class MainIndex(object):
     def __init__(self, content):
@@ -210,7 +213,7 @@ class CompanyPage(object):
             _, _, _, license_type, start_date, _ = cells
             self.data['licenses']['securities'].append({
                 'type': license_type.text(),
-                'start_date': parse(start_date.text()).date()
+                'start_date': parse_date(start_date.text())
             })
 
     def _process_derivatives_license(self, row):
@@ -219,7 +222,7 @@ class CompanyPage(object):
             _, _, _, license_type, start_date, _ = cells
             self.data['licenses']['derivatives'].append({
                 'type': license_type.text(),
-                'start_date': parse(start_date.text()).date(),
+                'start_date': parse_date(start_date.text())
             })
 
     def _process_major_shareholder(self, row):
@@ -241,6 +244,18 @@ class CompanyPage(object):
                 'nationality': nationality.text().title(),
             })
 
+    def _process_fund_manager(self, row):
+        cells = list(row.items('td'))
+        if len(cells) == 7:
+            _, name, is_mf, is_df, approval, appointed, training = cells
+            self.data['fund_managers'].append({
+                'name': name.text().title(),
+                'type': 'mutual' if is_mf.text() else 'derivative',
+                'approval_date': parse_date(approval.text()),
+                'appointed_date': parse_date(appointed.text()),
+                'training_deadline': parse_date(training.text()),
+            })
+
     def _process(self):
         self._data = {
             'name': self._content('.menub .ttr').eq(0).text(),
@@ -250,6 +265,7 @@ class CompanyPage(object):
             },
             'major_shareholders': [],
             'executives': [],
+            'fund_managers': [],
         }
 
         for row in self._content.items('.menub tr'):
@@ -275,6 +291,9 @@ class CompanyPage(object):
 
             elif self._headings_found == 5:
                 self._process_executive(row)
+
+            elif self._headings_found == 6:
+                self._process_fund_manager(row)
 
     @property
     def data(self):

@@ -146,3 +146,14 @@ def test_company_page_executives():
         },
     ]:
         assert entry in data['executives']
+
+def test_company_page_fund_managers():
+    html = open('data/company.html').read()
+    data = CompanyPage(html).data
+    assert data['fund_managers'] == [{
+        'name': 'Mr. Anupon Sriard',
+        'type': 'mutual',
+        'approval_date': date(2013, 9, 20),
+        'appointed_date': date(2014, 8, 1),
+        'training_deadline': date(2017, 12, 31),
+    }]
