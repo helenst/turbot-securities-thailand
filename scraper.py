@@ -195,7 +195,7 @@ MATCHERS = (
 class CompanyPage(object):
     def __init__(self, content):
         self._content = pq(content)
-        self._headings_found = 0
+        self._last_heading = ''
 
     def _process_basic_data(self, row):
         for matcher in MATCHERS:
@@ -278,36 +278,30 @@ class CompanyPage(object):
             'head_of_compliance': [],
         }
 
+        PROCESSORS = (
+            (self._data['name'], self._process_basic_data),
+            ('Under the Securities & Exchange Act', self._process_securities_license),
+            ('Under the Derivatives Act', self._process_derivatives_license),
+            ('Approved Major shareholder', self._process_major_shareholder),
+            ('Executives', self._process_executive),
+            ('Register of persons qualified to be Fund Manager', self._process_fund_manager),
+            ('Head of Compliance', self._process_head_of_compliance)
+        )
+
         for row in self._content.items('.menub tr'):
             if row.attr['class'] == 'ttr':
                 # main headings
-                self._headings_found += 1
+                self._last_heading = row.text()
 
             elif row.attr['class'] == 'ttr01':
                 # subheadings
                 pass
 
-            elif self._headings_found == 1:
-                self._process_basic_data(row)
-
-            elif self._headings_found == 2:
-                self._process_securities_license(row)
-
-            elif self._headings_found == 3:
-                self._process_derivatives_license(row)
-
-            elif self._headings_found == 4:
-                self._process_major_shareholder(row)
-
-            elif self._headings_found == 5:
-                self._process_executive(row)
-
-            elif self._headings_found == 6:
-                self._process_fund_manager(row)
-
-            elif self._headings_found == 7:
-                self._process_head_of_compliance(row)
-
+            else:
+                for heading, process in PROCESSORS:
+                    if self._last_heading.startswith(heading):
+                        process(row)
+                        break
     @property
     def data(self):
         if not hasattr(self, '_data'):
