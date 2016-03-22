@@ -227,7 +227,7 @@ class CompanyPage(object):
         if len(cells) == 3:
             _, name, percent = cells
             self.data['major_shareholders'].append({
-                'name': name.text(),
+                'name': name.text().title(),
                 'percentage': float(percent.text().strip('%'))
             })
 
@@ -236,9 +236,9 @@ class CompanyPage(object):
         if len(cells) == 4:
             _, name, position, nationality = cells
             self.data['executives'].append({
-                'name': name.text(),
+                'name': name.text().title(),
                 'position': position.text(),
-                'nationality': nationality.text(),
+                'nationality': nationality.text().title(),
             })
 
     def _process(self):

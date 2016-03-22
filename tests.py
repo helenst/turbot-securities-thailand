@@ -119,7 +119,7 @@ def test_company_page_shareholders():
     html = open('data/company.html').read()
     data = CompanyPage(html).data
     assert data['major_shareholders'] == [{
-        'name': 'PRAPHOL MILINDACHINLA',
+        'name': 'Praphol Milindachinla',
         'percentage': 25.06,
     }]
 
@@ -130,19 +130,19 @@ def test_company_page_executives():
 
     for entry in [
         {
-            'name': 'MRS. AMPORN JIAMMUNJIT',
+            'name': 'Mrs. Amporn Jiammunjit',
             'position': 'Manager',
-            'nationality': 'THAI',
+            'nationality': 'Thai',
         },
         {
-            'name': 'MR. VICHYA KREA-NGAM',
+            'name': 'Mr. Vichya Krea-Ngam',
             'position': 'Director',
-            'nationality': 'THAI',
+            'nationality': 'Thai',
         },
         {
-            'name': 'MR. PAISIT KAENCHAN',
+            'name': 'Mr. Paisit Kaenchan',
             'position': 'Independent Director',
-            'nationality': 'THAI',
+            'nationality': 'Thai',
         },
     ]:
         assert entry in data['executives']
