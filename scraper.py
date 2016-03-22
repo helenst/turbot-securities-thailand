@@ -192,21 +192,60 @@ MATCHERS = (
 class CompanyPage(object):
     def __init__(self, content):
         self._content = pq(content)
+        self._headings_found = 0
+
+    def _process_basic_data(self, row):
+        for matcher in MATCHERS:
+            data = matcher.attempt_match(row)
+            if data:
+                self._data.update({
+                    k: strip_whitespace(v)
+                    for (k, v) in data.items()
+                })
+                break
+
+    def _process_securities_license(self, row):
+        cells = list(row.items('td'))
+        if len(cells) == 6:
+            _, _, _, license_type, start_date, _ = cells
+            self.data['licenses']['securities'].append({
+                'type': license_type.text(),
+                'start_date': parse(start_date.text()).date()
+            })
+
+    def _process_derivatives_license(self, row):
+        cells = list(row.items('td'))
+        if len(cells) == 6:
+            _, _, _, license_type, start_date, _ = cells
+            self.data['licenses']['derivatives'].append({
+                'type': license_type.text(),
+                'start_date': parse(start_date.text()).date(),
+            })
 
     def _process(self):
         self._data = {
-            'name': self._content('.menub .ttr').eq(0).text()
+            'name': self._content('.menub .ttr').eq(0).text(),
+            'licenses': {
+                'securities': [],
+                'derivatives': [],
+            },
         }
 
-        for cell in self._content.items('.menub tr'):
-            for matcher in MATCHERS:
-                data = matcher.attempt_match(cell)
-                if data:
-                    self._data.update({
-                        k: strip_whitespace(v)
-                        for (k, v) in data.items()
-                    })
-                    break
+        for row in self._content.items('.menub tr'):
+            if row.attr['class'] == 'ttr':
+                self._headings_found += 1
+
+            elif row.attr['class'] == 'ttr01':
+                pass
+
+            elif self._headings_found == 1:
+                self._process_basic_data(row)
+
+            elif self._headings_found == 2:
+                self._process_securities_license(row)
+
+            elif self._headings_found == 3:
+                self._process_derivatives_license(row)
 
     @property
     def data(self):

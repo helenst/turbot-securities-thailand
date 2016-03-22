@@ -64,7 +64,7 @@ def test_company_index_get_link():
         'http://capital.sec.or.th/webapp/en/infocenter/intermed/comprofile/resultc_29032549.php?cno=0000000505'
     )
 
-def test_company_page_data():
+def test_company_page_basic_data():
     html = open('data/company.html').read()
     data = CompanyPage(html).data
     assert data['name'] == 'AEC SECURITIES PUBLIC COMPANY LIMITED'
@@ -78,3 +78,39 @@ def test_company_page_data():
     assert data['date_incorporated'].date() == date(1993, 12, 15)
     assert data['registered_capital'] == '1,331.72 Million Baht'
     assert data['paid_up_capital'] == '1,009.74 Million Baht'
+
+def test_company_page_licenses():
+    html = open('data/company.html').read()
+    data = CompanyPage(html).data
+    assert data['licenses']['securities'] == [
+        {
+            'type': 'Securities Brokerage',
+            'start_date': date(2014, 1, 31),
+        },
+        {
+            'type': 'Securities Dealing',
+            'start_date': date(2014, 1, 31),
+        },
+        {
+            'type': 'Investment Advisory Services',
+            'start_date': date(2014, 1, 31),
+        },
+        {
+            'type': 'Securities Underwriting',
+            'start_date': date(2014, 1, 31),
+        },
+        {
+            'type': 'Private Fund Management',
+            'start_date': date(2015, 3, 19),
+        },
+        {
+            'type': 'Securities Borrowing and Lending (Principal Only)',
+            'start_date': date(2014, 5, 20),
+        },
+    ]
+    assert data['licenses']['derivatives'] == [
+        {
+            'type': 'Derivatives Broker',
+            'start_date': date(2014, 2, 20),
+        }
+    ]
