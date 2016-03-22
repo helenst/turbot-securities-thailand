@@ -8,7 +8,9 @@
     "number"
   ],
   "files": [
-    "scraper.py"
+    "scraper.py",
+    "utils.py",
+    "company_page.py"
   ],
   "frequency": "monthly",
   "publisher": {
