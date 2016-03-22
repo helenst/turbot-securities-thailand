@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date
-from scraper import MainIndexCell, CompanyIndex, CompanyPage
+
+from main_index import MainIndexCell
+from company_index import CompanyIndex
+from company_page import CompanyPage
 
 
 def test_main_index_cell_links():
