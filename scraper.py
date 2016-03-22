@@ -110,7 +110,7 @@ class CompanyIndex(object):
         )
 
 
-class Matcher(object):
+class InfoMatcher(object):
     @classmethod
     def attempt_match(cls, cell):
         text = strip_whitespace(cell.text())
@@ -119,7 +119,7 @@ class Matcher(object):
             return cls.process(cell, match)
 
 
-class AddressMatcher(Matcher):
+class AddressMatcher(InfoMatcher):
     regex = re.compile(r'''
         Head\ office(?P<address>.+)
         (?:Tel.\s*(?P<tel>[-0-9]*)\s*)
@@ -136,7 +136,7 @@ class AddressMatcher(Matcher):
             fax=match.group('fax').strip('-'),
         )
 
-class IncorporationDateMatcher(Matcher):
+class IncorporationDateMatcher(InfoMatcher):
     regex = re.compile(r'''
         Date\ of\ Incorporation\ :\ (?P<date>.+)
         Registered\ &\ Paid-Up\ Capital
@@ -150,7 +150,7 @@ class IncorporationDateMatcher(Matcher):
             date_incorporated=incorp_date
         )
 
-class WebsiteMatcher(Matcher):
+class WebsiteMatcher(InfoMatcher):
     regex = re.compile(r'''
         \[Click\ HERE\ for\ History\ of\ Name\ Change\]\ 
         \[Click\ HERE\ for\ Company\ Website\]
@@ -165,7 +165,7 @@ class WebsiteMatcher(Matcher):
                 website=a[1].attrib['href']
             )
 
-class RegisteredCapitalMatcher(Matcher):
+class RegisteredCapitalMatcher(InfoMatcher):
     regex = re.compile('- Registered (?P<capital>.+ Baht)')
 
     @staticmethod
@@ -174,7 +174,7 @@ class RegisteredCapitalMatcher(Matcher):
             registered_capital=match.group('capital')
         )
 
-class PaidUpCapitalMatcher(Matcher):
+class PaidUpCapitalMatcher(InfoMatcher):
     regex = re.compile('- Paid-Up Capital (?P<capital>.+ Baht)')
 
     @staticmethod
@@ -184,7 +184,7 @@ class PaidUpCapitalMatcher(Matcher):
         )
 
 
-MATCHERS = (
+INFO_MATCHERS = (
     AddressMatcher,
     IncorporationDateMatcher,
     WebsiteMatcher,
@@ -198,7 +198,7 @@ class CompanyPage(object):
         self._last_heading = ''
 
     def _process_basic_data(self, row):
-        for matcher in MATCHERS:
+        for matcher in INFO_MATCHERS:
             data = matcher.attempt_match(row)
             if data:
                 self._data.update({
