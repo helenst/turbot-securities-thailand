@@ -114,3 +114,11 @@ def test_company_page_licenses():
             'start_date': date(2014, 2, 20),
         }
     ]
+
+def test_company_page_shareholders():
+    html = open('data/company.html').read()
+    data = CompanyPage(html).data
+    assert data['major_shareholders'] == [{
+        'name': 'PRAPHOL MILINDACHINLA',
+        'percentage': 25.06,
+    }]

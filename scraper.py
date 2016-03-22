@@ -222,6 +222,15 @@ class CompanyPage(object):
                 'start_date': parse(start_date.text()).date(),
             })
 
+    def _process_major_shareholder(self, row):
+        cells = list(row.items('td'))
+        if len(cells) == 3:
+            _, name, percent = cells
+            self.data['major_shareholders'].append({
+                'name': name.text(),
+                'percentage': float(percent.text().strip('%'))
+            })
+
     def _process(self):
         self._data = {
             'name': self._content('.menub .ttr').eq(0).text(),
@@ -229,13 +238,16 @@ class CompanyPage(object):
                 'securities': [],
                 'derivatives': [],
             },
+            'major_shareholders': [],
         }
 
         for row in self._content.items('.menub tr'):
             if row.attr['class'] == 'ttr':
+                # main headings
                 self._headings_found += 1
 
             elif row.attr['class'] == 'ttr01':
+                # subheadings
                 pass
 
             elif self._headings_found == 1:
@@ -246,6 +258,9 @@ class CompanyPage(object):
 
             elif self._headings_found == 3:
                 self._process_derivatives_license(row)
+
+            elif self._headings_found == 4:
+                self._process_major_shareholder(row)
 
     @property
     def data(self):
