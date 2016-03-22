@@ -36,7 +36,7 @@ class MainIndex(object):
     def links(self):
         cells = self._content('.ms-rteTable-sec tr td:last')
         for td in cells:
-            for link in MainIndexCell(td).extract_links():
+            for link in MainIndexCell(td).links:
                 yield link
 
 
@@ -77,7 +77,7 @@ class MainIndexCell(object):
                 levels.append(content)
 
 
-class CompanyListing(object):
+class CompanyIndex(object):
     def __init__(self, content, title, parents):
         self._content = pq(content)
         self._title = title
@@ -217,18 +217,26 @@ class CompanyPage(object):
 root_url = 'http://www.sec.or.th/EN/MarketProfessionals/Intermediaries/Pages/ListofBusinessOperators.aspx'
 
 if __name__ == '__main__':
+    turbotlib.log('Scraping main index %s' % root_url)
     for link in MainIndex(pq(url=root_url)).links:
         # Redirect if necessary
         url = link['url']
+
+        turbotlib.log('Redirecting from %s' % url)
         url = find_js_redirect(pq(url=url)) or url
 
-        for company_link in filter(None, CompanyListing(
+        turbotlib.log('Scraping company index %s' % url)
+        company_index = CompanyIndex(
             pq(url=url),
             title=link['title'],
             parents=link['parents'],
-        ).links):
+        )
+        for company_link in filter(None, company_index.links):
+            turbotlib.log('Scraping company page %s' % company_link)
             page = CompanyPage(pq(url=company_link))
-            page.data
+            print page.data
+            import sys
+            sys.exit(0)
 
 
 #html = open('data/ListofBusinessOperators.aspx').read()

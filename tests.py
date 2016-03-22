@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date
-from scraper import MainIndexCell, CompanyListing, CompanyPage
+from scraper import MainIndexCell, CompanyIndex, CompanyPage
 
 
 def test_main_index_cell_links():
@@ -48,7 +48,7 @@ def test_main_index_cell_links():
         },
     ]
 
-def test_company_listing_get_link():
+def test_company_index_get_link():
     row = '''
     <tr class="rgRow" id="ctl00_ContentPlaceHolder1_RadGrid1_ctl00_ctl04_RadGrid11_ctl00__0">
         <td align="center" style="width:5%;">
@@ -56,7 +56,7 @@ def test_company_listing_get_link():
                                         </td><td style="width:25%;"><a href="http://capital.sec.or.th/webapp/en/infocenter/intermed/comprofile/resultc_29032549.php?cno=0000000505">AEC SECURITIES PUBLIC CO.,LTD.</a></td><td style="width:70%;">63 , ATHENEE TOWER, 15TH, 17TH FL., WIRELESS RD., LUMPHINI, PATHUM WAN, Bangkok 10330 Tel.- Fax.-</td>
     </tr>
     '''
-    index = CompanyListing('<body />', 'page title', ['level 1', 'level 2'])
+    index = CompanyIndex('<body />', 'page title', ['level 1', 'level 2'])
     result = index.get_link(row)
 
     assert (
