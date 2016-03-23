@@ -85,38 +85,33 @@ def test_company_page_basic_data():
 def test_company_page_licenses():
     html = open('data/company.html').read()
     data = CompanyPage(html).data
-    assert data['licenses']['securities'] == [
+    for entry in [
         {
+            'number': u'ลก-0061-01',
             'type': 'Securities Brokerage',
+            'effective_date': date(2014, 1, 31),
             'start_date': date(2014, 1, 31),
         },
         {
-            'type': 'Securities Dealing',
-            'start_date': date(2014, 1, 31),
-        },
-        {
+            'number': u'ลก-0061-01',
             'type': 'Investment Advisory Services',
+            'effective_date': date(2014, 1, 31),
             'start_date': date(2014, 1, 31),
         },
         {
-            'type': 'Securities Underwriting',
-            'start_date': date(2014, 1, 31),
-        },
-        {
-            'type': 'Private Fund Management',
-            'start_date': date(2015, 3, 19),
-        },
-        {
+            'number': u'ลก-0061-01',
             'type': 'Securities Borrowing and Lending (Principal Only)',
+            'effective_date': date(2014, 1, 31),
             'start_date': date(2014, 5, 20),
         },
-    ]
-    assert data['licenses']['derivatives'] == [
         {
+            'number': u'ส1-0061-01',
             'type': 'Derivatives Broker',
+            'effective_date': date(2014, 2, 20),
             'start_date': date(2014, 2, 20),
-        }
-    ]
+        },
+    ]:
+        assert entry in data['licenses']
 
 def test_company_page_shareholders():
     html = open('data/company.html').read()
