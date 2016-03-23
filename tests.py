@@ -87,26 +87,30 @@ def test_company_page_licenses():
     data = CompanyPage(html).data
     for entry in [
         {
+            'type': '',
             'number': u'ลก-0061-01',
-            'type': 'Securities Brokerage',
+            'business': 'Securities Brokerage',
             'effective_date': date(2014, 1, 31),
             'start_date': date(2014, 1, 31),
         },
         {
+            'type': '',
             'number': u'ลก-0061-01',
-            'type': 'Investment Advisory Services',
+            'business': 'Investment Advisory Services',
             'effective_date': date(2014, 1, 31),
             'start_date': date(2014, 1, 31),
         },
         {
+            'type': '',
             'number': u'ลก-0061-01',
-            'type': 'Securities Borrowing and Lending (Principal Only)',
+            'business': 'Securities Borrowing and Lending (Principal Only)',
             'effective_date': date(2014, 1, 31),
             'start_date': date(2014, 5, 20),
         },
         {
+            'type': '',
             'number': u'ส1-0061-01',
-            'type': 'Derivatives Broker',
+            'business': 'Derivatives Broker',
             'effective_date': date(2014, 2, 20),
             'start_date': date(2014, 2, 20),
         },

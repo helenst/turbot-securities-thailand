@@ -31,5 +31,5 @@ def hungry_merge(*lists):
     Given a set of items at the same position in their respective lists,
     we take the last non-empty one we find.
     """
-    return [next(item for item in items[::-1] if item)
+    return [next((item for item in items[::-1] if item), '')
             for items in zip(*lists)]
