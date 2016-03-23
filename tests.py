@@ -92,6 +92,7 @@ def test_company_page_licenses():
             'business': 'Securities Brokerage',
             'effective_date': date(2014, 1, 31),
             'start_date': date(2014, 1, 31),
+            'remark': '',
         },
         {
             'type': '',
@@ -99,6 +100,7 @@ def test_company_page_licenses():
             'business': 'Investment Advisory Services',
             'effective_date': date(2014, 1, 31),
             'start_date': date(2014, 1, 31),
+            'remark': '',
         },
         {
             'type': '',
@@ -106,6 +108,7 @@ def test_company_page_licenses():
             'business': 'Securities Borrowing and Lending (Principal Only)',
             'effective_date': date(2014, 1, 31),
             'start_date': date(2014, 5, 20),
+            'remark': '',
         },
         {
             'type': '',
@@ -113,6 +116,7 @@ def test_company_page_licenses():
             'business': 'Derivatives Broker',
             'effective_date': date(2014, 2, 20),
             'start_date': date(2014, 2, 20),
+            'remark': '',
         },
     ]:
         assert entry in data['licenses']
