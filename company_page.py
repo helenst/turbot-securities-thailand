@@ -79,6 +79,32 @@ class PaidUpCapitalMatcher(InfoMatcher):
             paid_up_capital=match.group('capital')
         )
 
+class AntiCorruptionMatcher(InfoMatcher):
+    regex = re.compile(r'''
+        Anti-corruption\ Progress\ Indicator\ :\s
+        (?P<rating>\w+)\ \(As\ of\s(?P<date>[\d/]+)\)
+        ''', re.VERBOSE
+    )
+
+    DESCRIPTIONS = {
+        '1': 'Committed',
+        '2': 'Declared',
+        '3': 'Established',
+        '3A': 'Established by Declaration of Intent',
+        '3B': 'Established by Committment and Policy',
+        '4': 'Certified Level',
+        '5': 'Extended',
+    }
+
+    @classmethod
+    def process(cls, cell, match):
+        return dict(
+            anti_corruption = dict(
+                rating = match.group('rating'),
+                description = cls.DESCRIPTIONS.get(match.group('rating')),
+                date = parse_date(match.group('date')),
+            )
+        )
 
 INFO_MATCHERS = (
     AddressMatcher,
@@ -86,6 +112,7 @@ INFO_MATCHERS = (
     WebsiteMatcher,
     RegisteredCapitalMatcher,
     PaidUpCapitalMatcher,
+    AntiCorruptionMatcher,
 )
 
 class CompanyPage(object):

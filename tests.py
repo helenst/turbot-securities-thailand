@@ -171,3 +171,13 @@ def test_company_page_head_of_compliance():
         'name': 'Mr. Kasidit Nuchtan',
         'start_date': date(2015, 5, 6),
     }]
+
+def test_company_page_anti_corruption():
+    html = open('data/company.html').read()
+    data = CompanyPage(html).data
+    assert data['anti_corruption'] == {
+        'rating': '3A',
+        'description': 'Established by Declaration of Intent',
+        'date': date(2016, 3, 17),
+    }
+

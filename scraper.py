@@ -25,8 +25,6 @@ def find_js_redirect(doc):
                 return m.group('url')
 
 
-
-
 root_url = 'http://www.sec.or.th/EN/MarketProfessionals/Intermediaries/Pages/ListofBusinessOperators.aspx'
 
 if __name__ == '__main__':

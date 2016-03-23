@@ -10,7 +10,7 @@ def normalize_whitespace(text):
 def strip_whitespace(text):
     if not isinstance(text, (str, unicode)):
         return text
-    return text.strip(string.whitespace + u'\u200b\u00a0')
+    return text.replace(u'\xa0', ' ').strip(string.whitespace + u'\u200b\u00a0')
 
 
 def parse_date(text):
