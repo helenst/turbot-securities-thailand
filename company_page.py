@@ -2,7 +2,7 @@ import re
 
 from pyquery import PyQuery as pq
 
-from utils import parse_date, strip_whitespace
+from utils import hungry_merge, parse_date, strip_whitespace
 
 
 class InfoMatcher(object):
@@ -92,8 +92,7 @@ class CompanyPage(object):
     def __init__(self, content):
         self._content = pq(content)
         self._last_heading = ''
-        self._license_number = ''
-        self._license_date = ''
+        self._last_license_row = [''] * 4
 
     def _process_basic_data(self, row):
         for matcher in INFO_MATCHERS:
@@ -108,16 +107,18 @@ class CompanyPage(object):
     def _process_license(self, row):
         cells = list(row.items('td'))
         if len(cells) == 6:
-            _, no, eff_date, license_type, start_date, _ = cells
-            if no.text():
-                self._license_number = no.text()
-            if eff_date.text():
-                self._license_date = parse_date(eff_date.text())
+            self._last_license_row = hungry_merge(
+                self._last_license_row,
+                [cell.text() for cell in cells[1:-1]],
+            )
+
+            num, eff_date, license_type, start_date = self._last_license_row
+
             self.data['licenses'].append({
-                'number': self._license_number,
-                'effective_date': self._license_date,
-                'type': license_type.text(),
-                'start_date': parse_date(start_date.text())
+                'number': num,
+                'effective_date': parse_date(eff_date),
+                'type': license_type,
+                'start_date': parse_date(start_date),
             })
 
     def _process_major_shareholder(self, row):

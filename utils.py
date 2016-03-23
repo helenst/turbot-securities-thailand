@@ -15,3 +15,21 @@ def strip_whitespace(text):
 
 def parse_date(text):
     return parse(text, dayfirst=True).date()
+
+
+def hungry_merge(*lists):
+    """
+    This merge is hungry for data.
+
+    (Maybe this is an actual thing and there's a better name for it!)
+
+    It's an itemwise merge of multiple lists.
+
+    Later entries are favoured over earlier ones.
+    Non-empty values are favoured over empty ones.
+
+    Given a set of items at the same position in their respective lists,
+    we take the last non-empty one we find.
+    """
+    return [next(item for item in items[::-1] if item)
+            for items in zip(*lists)]
