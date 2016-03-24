@@ -49,7 +49,7 @@ class IncorporationDateMatcher(InfoMatcher):
 
 class WebsiteMatcher(InfoMatcher):
     regex = re.compile(r'''
-        \[Click\ HERE\ for\ History\ of\ Name\ Change\]\ 
+        \[Click\ HERE\ for\ History\ of\ Name\ Change\]\s
         \[Click\ HERE\ for\ Company\ Website\]
         ''', re.VERBOSE
     )
@@ -83,7 +83,7 @@ class PaidUpCapitalMatcher(InfoMatcher):
 class AntiCorruptionMatcher(InfoMatcher):
     regex = re.compile(r'''
         Anti-corruption\ Progress\ Indicator\ :\s
-        (?P<rating>\w+)\ \(As\ of\s(?P<date>[\d/]+)\)
+        Level\ (?P<rating>\d\w?)\s+\(As\ of\s(?P<date>[\d/]+)\)
         ''', re.VERBOSE
     )
 
