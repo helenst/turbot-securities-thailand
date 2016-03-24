@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
             name_change_link = re.sub(
                 r'/resultc_\d+.php\?cno=(?P<id>\d+)',
-                lambda m: 'showcomphist.php?cno=' + m.group('id'),
+                lambda m: '/showcomphist.php?cno=' + m.group('id'),
                 company_link
             )
 
