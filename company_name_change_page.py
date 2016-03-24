@@ -1,7 +1,7 @@
 
 from pyquery import PyQuery as pq
 
-from utils import parse_date, strip_whitespace
+from utils import iso_date, strip_whitespace
 
 
 class CompanyNameChangePage(object):
@@ -11,11 +11,13 @@ class CompanyNameChangePage(object):
 
     @staticmethod
     def _process_row(row):
-        name, change_date = row.findall('td')
-        return {
-            'name': strip_whitespace(name.text).title(),
-            'until': parse_date(change_date.text).isoformat(),
-        }
+        cells = row.findall('td')
+        if len(cells) == 2:
+            name, change_date = cells
+            return {
+                'name': strip_whitespace(name.text).title(),
+                'until': iso_date(change_date.text),
+            }
 
     def _process(self):
         name_rows = self._content('.menub tr')[2:]

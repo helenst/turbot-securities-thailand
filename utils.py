@@ -17,6 +17,13 @@ def parse_date(text):
     return parse(text, dayfirst=True).date()
 
 
+def iso_date(text):
+    try:
+        return parse_date(text).isoformat()
+    except ValueError:
+        return ''
+
+
 def hungry_merge(*lists):
     """
     This merge is hungry for data.

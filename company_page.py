@@ -2,7 +2,7 @@ import re
 
 from pyquery import PyQuery as pq
 
-from utils import hungry_merge, parse_date, strip_whitespace
+from utils import hungry_merge, iso_date, strip_whitespace
 
 
 class InfoMatcher(object):
@@ -41,9 +41,9 @@ class IncorporationDateMatcher(InfoMatcher):
 
     @staticmethod
     def process(cell, match):
-        incorp_date = parse_date(strip_whitespace(match.group('date')))
+        incorp_date = iso_date(strip_whitespace(match.group('date')))
         return dict(
-            date_incorporated=incorp_date.isoformat(),
+            date_incorporated=incorp_date,
         )
 
 
@@ -103,7 +103,7 @@ class AntiCorruptionMatcher(InfoMatcher):
             anti_corruption = dict(
                 rating = match.group('rating'),
                 description = cls.DESCRIPTIONS.get(match.group('rating')),
-                date = parse_date(match.group('date')).isoformat(),
+                date = iso_date(match.group('date')),
             )
         )
 
@@ -144,10 +144,10 @@ class CompanyPage(object):
 
             self.data['licenses'].append({
                 'number': num,
-                'effective_date': parse_date(eff_date).isoformat(),
+                'effective_date': iso_date(eff_date),
                 'type': license_type,
                 'business': business,
-                'start_date': parse_date(start_date).isoformat(),
+                'start_date': iso_date(start_date),
                 'remark': remark,
             })
 
@@ -177,9 +177,9 @@ class CompanyPage(object):
             self.data['fund_managers'].append({
                 'name': name.text().title(),
                 'type': 'mutual' if is_mf.text() else 'derivative',
-                'approval_date': parse_date(approval.text()).isoformat(),
-                'appointed_date': parse_date(appointed.text()).isoformat(),
-                'training_deadline': parse_date(training.text()).isoformat(),
+                'approval_date': iso_date(approval.text()),
+                'appointed_date': iso_date(appointed.text()),
+                'training_deadline': iso_date(training.text()),
             })
 
     def _process_head_of_compliance(self, row):
@@ -188,7 +188,7 @@ class CompanyPage(object):
             name, start_date = cells
             self.data['head_of_compliance'].append({
                 'name': name.text().title(),
-                'start_date': parse_date(start_date.text()).isoformat(),
+                'start_date': iso_date(start_date.text()),
             })
 
     def _process(self):
