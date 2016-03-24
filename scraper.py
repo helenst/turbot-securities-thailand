@@ -2,6 +2,7 @@
 
 import json
 import re
+import time
 
 import requests
 import turbotlib
@@ -28,7 +29,12 @@ def find_js_redirect(doc):
 
 root_url = 'http://www.sec.or.th/EN/MarketProfessionals/Intermediaries/Pages/ListofBusinessOperators.aspx'
 
+def wait():
+    time.sleep(0.5)
+
 if __name__ == '__main__':
+    processed_urls = set()
+
     turbotlib.log('Scraping main index %s' % root_url)
     for link in MainIndex(pq(url=root_url)).links:
         # Redirect if necessary
@@ -37,29 +43,38 @@ if __name__ == '__main__':
         turbotlib.log('Redirecting from %s' % url)
         url = find_js_redirect(pq(url=url)) or url
 
+        wait()
         turbotlib.log('Scraping company index %s' % url)
         company_index = CompanyIndex(
             pq(url=url),
             title=link['title'],
             parents=link['parents'],
         )
+
         for company_link in filter(None, company_index.links):
+            if company_link in processed_urls:
+                continue
+
+            wait()
             turbotlib.log('Scraping company page %s' % company_link)
             page = CompanyPage(pq(url=company_link))
             data = page.data
 
+            data['source_url'] = company_link
+            processed_urls.add(company_link)
+
             name_change_link = re.sub(
                 r'/resultc_\d+.php\?cno=(?P<id>\d+)',
                 lambda m: 'showcomphist.php?cno=' + m.group('id'),
-                url
+                company_link
             )
+
+            wait()
+            turbotlib.log('Scraping company name change page %s' % name_change_link)
             page = CompanyNameChangePage(pq(url=name_change_link))
             data['old_names'] = page.old_names
 
             print json.dumps(data)
-
-            import sys
-            sys.exit(0)
 
 
 #html = open('data/ListofBusinessOperators.aspx').read()
