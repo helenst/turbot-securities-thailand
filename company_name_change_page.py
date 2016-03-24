@@ -14,7 +14,7 @@ class CompanyNameChangePage(object):
         name, change_date = row.findall('td')
         return {
             'name': strip_whitespace(name.text).title(),
-            'until': parse_date(change_date.text)
+            'until': parse_date(change_date.text).isoformat(),
         }
 
     def _process(self):

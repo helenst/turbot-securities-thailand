@@ -10,6 +10,7 @@ from pyquery import PyQuery as pq
 
 from company_index import CompanyIndex
 from company_page import CompanyPage
+from company_name_change_page import CompanyNameChangePage
 from main_index import MainIndex
 from utils import strip_whitespace
 
@@ -45,7 +46,18 @@ if __name__ == '__main__':
         for company_link in filter(None, company_index.links):
             turbotlib.log('Scraping company page %s' % company_link)
             page = CompanyPage(pq(url=company_link))
-            print page.data
+            data = page.data
+
+            name_change_link = re.sub(
+                r'/resultc_\d+.php\?cno=(?P<id>\d+)',
+                lambda m: 'showcomphist.php?cno=' + m.group('id'),
+                url
+            )
+            page = CompanyNameChangePage(pq(url=name_change_link))
+            data['old_names'] = page.old_names
+
+            print json.dumps(data)
+
             import sys
             sys.exit(0)
 

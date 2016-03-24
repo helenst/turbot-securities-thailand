@@ -43,8 +43,9 @@ class IncorporationDateMatcher(InfoMatcher):
     def process(cell, match):
         incorp_date = parse_date(strip_whitespace(match.group('date')))
         return dict(
-            date_incorporated=incorp_date
+            date_incorporated=incorp_date.isoformat(),
         )
+
 
 class WebsiteMatcher(InfoMatcher):
     regex = re.compile(r'''
@@ -102,7 +103,7 @@ class AntiCorruptionMatcher(InfoMatcher):
             anti_corruption = dict(
                 rating = match.group('rating'),
                 description = cls.DESCRIPTIONS.get(match.group('rating')),
-                date = parse_date(match.group('date')),
+                date = parse_date(match.group('date')).isoformat(),
             )
         )
 
@@ -143,10 +144,10 @@ class CompanyPage(object):
 
             self.data['licenses'].append({
                 'number': num,
-                'effective_date': parse_date(eff_date),
+                'effective_date': parse_date(eff_date).isoformat(),
                 'type': license_type,
                 'business': business,
-                'start_date': parse_date(start_date),
+                'start_date': parse_date(start_date).isoformat(),
                 'remark': remark,
             })
 
@@ -176,9 +177,9 @@ class CompanyPage(object):
             self.data['fund_managers'].append({
                 'name': name.text().title(),
                 'type': 'mutual' if is_mf.text() else 'derivative',
-                'approval_date': parse_date(approval.text()),
-                'appointed_date': parse_date(appointed.text()),
-                'training_deadline': parse_date(training.text()),
+                'approval_date': parse_date(approval.text()).isoformat(),
+                'appointed_date': parse_date(appointed.text()).isoformat(),
+                'training_deadline': parse_date(training.text()).isoformat(),
             })
 
     def _process_head_of_compliance(self, row):
@@ -187,7 +188,7 @@ class CompanyPage(object):
             name, start_date = cells
             self.data['head_of_compliance'].append({
                 'name': name.text().title(),
-                'start_date': parse_date(start_date.text())
+                'start_date': parse_date(start_date.text()).isoformat(),
             })
 
     def _process(self):
