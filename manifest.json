@@ -1,23 +1,26 @@
 {
   "bot_id": "thai_securities",
-  "title": "My simple bot",
-  "description": "This is a simple bot",
+  "title": "Securities and Exchange Commission of Thailand",
+  "description": "Bot for scraping Securities and Exchange Commission data at http://www.sec.or.th/EN/MarketProfessionals/Intermediaries/Pages/ListofBusinessOperators.aspx",
   "language": "python",
   "data_type": "primary data",
   "identifying_fields": [
-    "number"
+    "name"
   ],
   "files": [
     "scraper.py",
     "utils.py",
-    "company_page.py"
+    "company_page.py",
+    "company_index.py",
+    "main_index.py",
+    "company_name_change_page.py"
   ],
   "frequency": "monthly",
   "publisher": {
-    "name": "Publisher of the data",
-    "url": "Publisher's website",
-    "terms": "Copyright terms (e.g. Open Government License, n/a, etc)",
-    "terms_url": "A place where these terms can be checked or verified"
+    "name": "The Securities and Exchange Commission, Thailand",
+    "url": "http://www.sec.or.th/",
+    "terms": "n/a",
+    "terms_url": "n/a"
   },
   "public_repo_url": "https://github.com/helenst/turbot-securities-thailand/"
 }
