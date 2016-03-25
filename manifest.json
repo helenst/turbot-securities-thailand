@@ -18,5 +18,6 @@
     "url": "Publisher's website",
     "terms": "Copyright terms (e.g. Open Government License, n/a, etc)",
     "terms_url": "A place where these terms can be checked or verified"
-  }
+  },
+  "public_repo_url": "https://github.com/helenst/turbot-securities-thailand/"
 }
