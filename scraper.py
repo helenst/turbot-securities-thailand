@@ -3,8 +3,8 @@
 import json
 import re
 import time
+from datetime import datetime
 
-import requests
 import turbotlib
 from pyquery import PyQuery as pq
 
@@ -13,7 +13,6 @@ from company_index import CompanyIndex
 from company_page import CompanyPage
 from company_name_change_page import CompanyNameChangePage
 from main_index import MainIndex
-from utils import strip_whitespace
 
 turbotlib.log("Starting run...")
 
@@ -28,6 +27,7 @@ def find_js_redirect(doc):
 
 
 root_url = 'http://www.sec.or.th/EN/MarketProfessionals/Intermediaries/Pages/ListofBusinessOperators.aspx'
+
 
 def wait():
     time.sleep(0.5)
@@ -60,6 +60,7 @@ if __name__ == '__main__':
             page = CompanyPage(pq(url=company_link))
             data = page.data
 
+            data['sample_date'] = datetime.now().isoformat()
             data['source_url'] = company_link
             processed_urls.add(company_link)
 
