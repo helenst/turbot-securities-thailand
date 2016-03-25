@@ -52,22 +52,24 @@ if __name__ == '__main__':
         )
 
         for company_link in filter(None, company_index.links):
-            if company_link in processed_urls:
+            company_url = company_link['url'].replace("&flag=HD", "")
+            if company_url in processed_urls:
                 continue
 
             wait()
-            turbotlib.log('Scraping company page %s' % company_link)
-            page = CompanyPage(pq(url=company_link))
+            turbotlib.log('Scraping company page %s' % company_url)
+            page = CompanyPage(pq(url=company_url))
             data = page.data
 
+            data['name'] = company_link['name']
             data['sample_date'] = datetime.now().isoformat()
-            data['source_url'] = company_link
-            processed_urls.add(company_link)
+            data['source_url'] = company_url
+            processed_urls.add(company_url)
 
             name_change_link = re.sub(
                 r'/resultc_\d+.php\?cno=(?P<id>\d+)',
                 lambda m: '/showcomphist.php?cno=' + m.group('id'),
-                company_link
+                company_url
             )
 
             wait()

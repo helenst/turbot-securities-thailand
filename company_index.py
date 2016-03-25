@@ -21,7 +21,10 @@ class CompanyIndex(object):
 
         a = cells[1].find('a')
         if a:
-            return a[0].attrib['href']
+            return {
+                'url': a[0].attrib['href'],
+                'name': a[0].text,
+            }
 
     @property
     def links(self):

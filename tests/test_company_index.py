@@ -13,6 +13,8 @@ def test_company_index_get_link():
     result = index.get_link(row)
 
     assert (
-        result ==
-        'http://capital.sec.or.th/webapp/en/infocenter/intermed/comprofile/resultc_29032549.php?cno=0000000505'
+        result == {
+            'url': 'http://capital.sec.or.th/webapp/en/infocenter/intermed/comprofile/resultc_29032549.php?cno=0000000505',
+            'name': 'AEC SECURITIES PUBLIC CO.,LTD.',
+        }
     )
