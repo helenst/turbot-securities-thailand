@@ -120,7 +120,7 @@ class CompanyPage(object):
     def __init__(self, content):
         self._content = pq(content)
         self._last_heading = ''
-        self._last_license_row = [''] * 6
+        self._last_license_row = []
 
     def _process_basic_data(self, row):
         for matcher in INFO_MATCHERS:
@@ -135,6 +135,9 @@ class CompanyPage(object):
     def _process_license(self, row):
         cells = list(row.items('td'))
         if len(cells) == 6:
+            if len(self._last_license_row) != 6:
+                self._last_license_row = [''] * 6
+
             self._last_license_row = hungry_merge(
                 self._last_license_row,
                 [cell.text() for cell in cells]
@@ -148,6 +151,21 @@ class CompanyPage(object):
                 'type': license_type,
                 'business': business,
                 'start_date': iso_date(start_date),
+                'remark': remark,
+            })
+
+        if len(cells) == 3:
+            if len(self._last_license_row) != 3:
+                self._last_license_row = [''] * 3
+            self._last_license_row = hungry_merge(
+                self._last_license_row,
+                [cell.text() for cell in cells]
+            )
+
+            license_type, eff_date, remark = self._last_license_row
+            self.data['licenses'].append({
+                'effective_date': iso_date(eff_date),
+                'type': license_type,
                 'remark': remark,
             })
 
