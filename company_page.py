@@ -172,7 +172,7 @@ class CompanyPage(object):
         if len(cells) == 3:
             _, name, percent = cells
             self._data['major_shareholders'].append({
-                'name': name.text().title(),
+                'name': name.text(),
                 'percentage': float(percent.text().strip('%'))
             })
 
@@ -181,9 +181,9 @@ class CompanyPage(object):
         if len(cells) == 4:
             _, name, position, nationality = cells
             self._data['executives'].append({
-                'name': name.text().title(),
+                'name': name.text(),
                 'position': position.text(),
-                'nationality': nationality.text().title(),
+                'nationality': nationality.text(),
             })
 
     def _process_fund_manager(self, row):
@@ -191,7 +191,7 @@ class CompanyPage(object):
         if len(cells) == 7:
             _, name, is_mf, is_df, approval, appointed, training = cells
             self._data['fund_managers'].append({
-                'name': name.text().title(),
+                'name': name.text(),
                 'type': 'mutual' if is_mf.text() else 'derivative',
                 'approval_date': iso_date(approval.text()),
                 'appointed_date': iso_date(appointed.text()),
@@ -203,7 +203,7 @@ class CompanyPage(object):
         if len(cells) == 2:
             name, start_date = cells
             self._data['head_of_compliance'].append({
-                'name': name.text().title(),
+                'name': name.text(),
                 'start_date': iso_date(start_date.text()),
             })
 

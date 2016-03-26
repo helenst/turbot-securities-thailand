@@ -64,7 +64,7 @@ def test_company_page_shareholders():
     html = open('data/company.html').read()
     data = CompanyPage(html).data
     assert data['major_shareholders'] == [{
-        'name': 'Praphol Milindachinla',
+        'name': 'PRAPHOL MILINDACHINLA',
         'percentage': 25.06,
     }]
 
@@ -75,19 +75,19 @@ def test_company_page_executives():
 
     for entry in [
         {
-            'name': 'Mrs. Amporn Jiammunjit',
+            'name': 'MRS. AMPORN JIAMMUNJIT',
             'position': 'Manager',
-            'nationality': 'Thai',
+            'nationality': 'THAI',
         },
         {
-            'name': 'Mr. Vichya Krea-Ngam',
+            'name': 'MR. VICHYA KREA-NGAM',
             'position': 'Director',
-            'nationality': 'Thai',
+            'nationality': 'THAI',
         },
         {
-            'name': 'Mr. Paisit Kaenchan',
+            'name': 'MR. PAISIT KAENCHAN',
             'position': 'Independent Director',
-            'nationality': 'Thai',
+            'nationality': 'THAI',
         },
     ]:
         assert entry in data['executives']
@@ -96,7 +96,7 @@ def test_company_page_fund_managers():
     html = open('data/company.html').read()
     data = CompanyPage(html).data
     assert data['fund_managers'] == [{
-        'name': 'Mr. Anupon Sriard',
+        'name': 'MR. ANUPON SRIARD',
         'type': 'mutual',
         'approval_date': '2013-09-20',
         'appointed_date': '2014-08-01',
@@ -107,7 +107,7 @@ def test_company_page_head_of_compliance():
     html = open('data/company.html').read()
     data = CompanyPage(html).data
     assert data['head_of_compliance'] == [{
-        'name': 'Mr. Kasidit Nuchtan',
+        'name': 'MR. KASIDIT NUCHTAN',
         'start_date': '2015-05-06',
     }]
 

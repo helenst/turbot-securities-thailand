@@ -15,7 +15,7 @@ class CompanyNameChangePage(object):
         if len(cells) == 2:
             name, change_date = cells
             return {
-                'name': strip_whitespace(name.text).title(),
+                'name': strip_whitespace(name.text),
                 'until': iso_date(change_date.text),
             }
 

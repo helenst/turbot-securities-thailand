@@ -9,11 +9,11 @@ def test_name_change_page():
 
     assert data == [
         {
-            'name': 'United Securites Public Company Limited',
+            'name': 'UNITED SECURITES PUBLIC COMPANY LIMITED',
             'until': '2013-06-17',
         },
         {
-            'name': 'United Securites Company Limited',
+            'name': 'UNITED SECURITES COMPANY LIMITED',
             'until': '1993-12-15',
         }
     ]
