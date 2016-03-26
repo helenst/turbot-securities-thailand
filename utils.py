@@ -7,10 +7,15 @@ def normalize_whitespace(text):
     return " ".join(map(strip_whitespace, text.split()))
 
 
-def strip_whitespace(text):
-    if not isinstance(text, (str, unicode)):
-        return text
-    return text.replace(u'\xa0', ' ').strip(string.whitespace + u'\u200b\u00a0')
+def strip_whitespace(obj):
+    if isinstance(obj, (str, unicode)):
+        return obj.replace(u'\xa0', ' ').strip(string.whitespace + u'\u200b\u00a0')
+    elif isinstance(obj, dict):
+        return {k: strip_whitespace(v) for (k, v) in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return map(strip_whitespace, obj)
+    else:
+        return obj
 
 
 def parse_date(text):

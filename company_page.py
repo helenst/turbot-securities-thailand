@@ -116,6 +116,7 @@ INFO_MATCHERS = (
     AntiCorruptionMatcher,
 )
 
+
 class CompanyPage(object):
     def __init__(self, content):
         self._content = pq(content)
@@ -126,10 +127,7 @@ class CompanyPage(object):
         for matcher in INFO_MATCHERS:
             data = matcher.attempt_match(row)
             if data:
-                self._data.update({
-                    k: strip_whitespace(v)
-                    for (k, v) in data.items()
-                })
+                self._data.update(data.items())
                 break
 
     def _process_license(self, row):
@@ -145,7 +143,7 @@ class CompanyPage(object):
 
             license_type, num, eff_date, business, start_date, remark = self._last_license_row
 
-            self.data['licenses'].append({
+            self._data['licenses'].append({
                 'number': num,
                 'effective_date': iso_date(eff_date),
                 'type': license_type,
@@ -163,7 +161,7 @@ class CompanyPage(object):
             )
 
             license_type, eff_date, remark = self._last_license_row
-            self.data['licenses'].append({
+            self._data['licenses'].append({
                 'effective_date': iso_date(eff_date),
                 'type': license_type,
                 'remark': remark,
@@ -173,7 +171,7 @@ class CompanyPage(object):
         cells = list(row.items('td'))
         if len(cells) == 3:
             _, name, percent = cells
-            self.data['major_shareholders'].append({
+            self._data['major_shareholders'].append({
                 'name': name.text().title(),
                 'percentage': float(percent.text().strip('%'))
             })
@@ -182,7 +180,7 @@ class CompanyPage(object):
         cells = list(row.items('td'))
         if len(cells) == 4:
             _, name, position, nationality = cells
-            self.data['executives'].append({
+            self._data['executives'].append({
                 'name': name.text().title(),
                 'position': position.text(),
                 'nationality': nationality.text().title(),
@@ -192,7 +190,7 @@ class CompanyPage(object):
         cells = list(row.items('td'))
         if len(cells) == 7:
             _, name, is_mf, is_df, approval, appointed, training = cells
-            self.data['fund_managers'].append({
+            self._data['fund_managers'].append({
                 'name': name.text().title(),
                 'type': 'mutual' if is_mf.text() else 'derivative',
                 'approval_date': iso_date(approval.text()),
@@ -204,7 +202,7 @@ class CompanyPage(object):
         cells = list(row.items('td'))
         if len(cells) == 2:
             name, start_date = cells
-            self.data['head_of_compliance'].append({
+            self._data['head_of_compliance'].append({
                 'name': name.text().title(),
                 'start_date': iso_date(start_date.text()),
             })
@@ -243,8 +241,9 @@ class CompanyPage(object):
                     if self._last_heading.startswith(heading):
                         process(row)
                         break
+
     @property
     def data(self):
         if not hasattr(self, '_data'):
             self._process()
-        return self._data
+        return strip_whitespace(self._data)
